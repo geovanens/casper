@@ -18,7 +18,6 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log(process.env);
     database.ref('/notices').once('value').then((snapshot) => {
       const temp = snapshot.val();
       const notices = [];
@@ -51,8 +50,14 @@ class App extends React.Component {
   };
 
 
-  addNotice = () => {
-    this.showModal();
+  editar = e => {
+    const { notices } = this.state;
+    console.log("EDITANDO", e.target.id);
+    console.log(notices.filter(f => f.id === e.target.id))
+  }
+
+  excluir = e => {
+    console.log("Apagando", e.target.id);
   }
 
   render() {
@@ -87,8 +92,8 @@ class App extends React.Component {
                   <td><p>{e.description}</p></td>
                   <td><p>{e.theme}</p></td>
                   <td><p>{e.link}</p></td>
-                  <td><button type="button">Editar</button></td>
-                  <td><button type="button">Excluir</button></td>
+                  <td><button type="button" id={e.id} onClick={ this.editar }>Editar</button></td>
+                  <td><button type="button" id={e.id} onClick={ this.excluir }>Excluir</button></td>
                 </tr>)}
                 </tbody>
               </table>
