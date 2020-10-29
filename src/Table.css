@@ -1,0 +1,29 @@
+table {
+    table-layout: fixed;
+    width: 80%;
+    empty-cells: show;
+    top: 40px;
+    left: 20px;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+td p {
+    max-width: 15ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+td p:hover {
+    display: inline;
+    position: relative; /* relative to .tooltipTrigger */
+    left: 10px;
+    border: 1px solid #ccc;
+    background-color: cornsilk;
+    color: black;
+}
+
