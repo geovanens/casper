@@ -1,6 +1,6 @@
 import React from "react";
 import "./modal.css";
-import database from "./firebaseSetup";
+import axios from "axios";
 
 export default class Modal extends React.Component {
   constructor(props) {
@@ -17,8 +17,6 @@ export default class Modal extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     const { link_image, title, description, theme, link } = this.state;
-    
-    var newKey = database.ref("/notices").push().key;
     const notice = {
       image_link: link_image,
       title: title,
@@ -26,13 +24,14 @@ export default class Modal extends React.Component {
       theme: theme,
       link: link
     };
-    database.ref("/notices/" + newKey).set(notice, function(error) {
-      if (error) {
-        alert("Data could not be saved." + error);
-      } else {
-        alert("Data saved successfully.");
+    const data = {
+      "notice": notice
+    };
+    axios.post("https://api-webhook.glitch.me/notices", data).then(res => {
         window.location.reload();
-      }
+    }).catch(error => {
+      alert("Data could not be saved." + error);
+      console.log(error);
     });
   }
 
@@ -56,7 +55,7 @@ export default class Modal extends React.Component {
       <div class="modal" id="modal">
         <h2>{this.props.title}</h2>
         <div class="content">
-          <form onSubmit={ e => this.handleSubmit(e) }>
+          <form onSubmit={e => this.handleSubmit(e)}>
             <div>
               <label>Link para Imagem:</label>
               <input
@@ -88,6 +87,7 @@ export default class Modal extends React.Component {
               />
             </div>
             <div>
+              <label>Tema</label>
               <select
                 id="theme"
                 name="theme"
@@ -122,7 +122,7 @@ export default class Modal extends React.Component {
             name="close"
             onClick={e => this.props.onClose.showModal(e)}
           >
-            close
+            Cancelar
           </button>
         </div>
       </div>

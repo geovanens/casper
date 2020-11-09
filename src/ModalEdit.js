@@ -1,9 +1,8 @@
 import React from "react";
 import "./modalEdit.css";
-import database from "./firebaseSetup";
+import axios from "axios";
 
 export default class ModalEdit extends React.Component {
-  
   constructor(props) {
     super(props);
     this.state = {
@@ -11,24 +10,36 @@ export default class ModalEdit extends React.Component {
       title: "",
       description: "",
       theme: "",
-      link: ""
+      link: "",
+      id: ""
     };
   }
-  
+
   componentDidMount() {
-    const { image_link, title, description, theme, link } =  this.props.onClose.state.editData;
+    console.log("EDITDATA", this.props.data)
+    const {
+      image_link,
+      title,
+      description,
+      theme,
+      link,
+      _id
+    } = this.props.onClose.state.editData;
     this.setState({ link_image: image_link });
     this.setState({ title: title });
     this.setState({ description: description });
     this.setState({ theme: theme });
     this.setState({ link: link });
-    console.log("Carregado", this)
+    this.setState({ id: _id });
+    console.log("Carregado", this);
+    console.log(this.props.onClose.state.editData)
   }
-  
+
   handleSubmit(e) {
+    console.log("CLIQUEI EM SALVAR", e);
     e.preventDefault();
-    const { link_image, title, description, theme, link } = this.state;
-    
+    const { link_image, title, description, theme, link, id } = this.state;
+
     var key = e.target.id;
     const notice = {
       image_link: link_image,
@@ -37,24 +48,22 @@ export default class ModalEdit extends React.Component {
       theme: theme,
       link: link
     };
-    database.ref("/notices/" + key).set(notice, function(error) {
-      if (error) {
-        alert("Data could not be changed." + error);
-      } else {
+    const data = {
+      notice: notice,
+      id: key
+    };
+    axios
+      .put("https://api-webhook.glitch.me/notices", data)
+      .then(res => {
         alert("Data changed successfully.");
         window.location.reload();
-      }
-    });
+      })
+      .catch(error => {
+        alert("Data could not be changed." + error);
+        console.log(error);
+      });
   }
 
-  /*
-  description: "Demitido do cargo de treinador ap?s a derrota em casa para o Cuiab?, no jogo de ida das oitavas da Copa do Brasil, ele afirma que fica para ajudar"
-id: "0"
-image_link: "https://s2.glbimg.com/YmoxUtUP2PgcAvZ4zD41XRkXMEc=/0x0:2025x1681/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/internal_photos/bs/2020/e/D/G7DMJ0QiOWVSPD7V7cnA/40-2-.jpg"
-link: "https://globoesporte.globo.com/futebol/times/botafogo/noticia/bruno-lazaroni-agradece-botafogo-e-jogadores-e-diz-experiencia-muito-importante.ghtml"
-theme: "sports"
-title: "Bruno Lazaroni agradece Botafogo e jogadores e diz: 'Experi?ncia muito importante'"
-  */
   handleInputChange(event) {
     const target = event.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
@@ -63,9 +72,9 @@ title: "Bruno Lazaroni agradece Botafogo e jogadores e diz: 'Experi?ncia muito i
       [name]: value
     });
   }
-  
+
   render() {
-    const { link_image, title, description, theme, link } = this.state;
+    const { link_image, title, description, theme, link, id } = this.state;
     if (!this.props.show) {
       return null;
     }
@@ -73,7 +82,10 @@ title: "Bruno Lazaroni agradece Botafogo e jogadores e diz: 'Experi?ncia muito i
       <div class="modalEdit" id="modalEdit">
         <h2>{this.props.title}</h2>
         <div class="contentForm">
-          <form onSubmit={ e => this.handleSubmit(e) } id={this.props.onClose.state.editData.id}>
+          <form
+            onSubmit={e => this.handleSubmit(e)}
+            id={id}
+          >
             <div>
               <label>Link para Imagem:</label>
               <input
@@ -105,6 +117,7 @@ title: "Bruno Lazaroni agradece Botafogo e jogadores e diz: 'Experi?ncia muito i
               />
             </div>
             <div>
+              <label>Tema:</label>
               <select
                 id="theme"
                 name="theme"
@@ -128,9 +141,7 @@ title: "Bruno Lazaroni agradece Botafogo e jogadores e diz: 'Experi?ncia muito i
                 required
               />
             </div>
-            <button type="submit">
-              Salvar
-            </button>
+            <button type="submit">Salvar</button>
           </form>
         </div>
         <div class="actions">
@@ -139,7 +150,7 @@ title: "Bruno Lazaroni agradece Botafogo e jogadores e diz: 'Experi?ncia muito i
             name="close"
             onClick={e => this.props.onClose.showModal(e)}
           >
-            close
+            Cancelar
           </button>
         </div>
       </div>
